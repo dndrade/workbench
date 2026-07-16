@@ -1,0 +1,9 @@
+{
+	"name": "Svelte + Bun Workbench",
+	"image": "ghcr.io/dndrade/workbench-svelte:1",
+	"features": {
+		"ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
+	},
+	"postCreateCommand": "bun install",
+	"shutdownAction": "stopContainer"
+}

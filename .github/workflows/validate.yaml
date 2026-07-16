@@ -1,0 +1,36 @@
+name: Validate
+
+on:
+  workflow_call:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Validate shell scripts
+        run: |
+          shellcheck docker/scripts/*.sh
+          bash -n docker/scripts/*.sh
+
+      - name: Validate JSON
+        run: |
+          python -m json.tool .devcontainer/devcontainer.json >/dev/null
+          python -m json.tool templates/devcontainers/svelte/.devcontainer/devcontainer.json >/dev/null
+
+      - name: Build and smoke-test Dev Container
+        uses: devcontainers/ci@v0.3
+        with:
+          push: never
+          runCmd: |
+            test "$(bun --version)" = "1.3.14"
+            fish --version
+            git --version
+            test "$(getent passwd vscode | cut -d: -f7)" = "/usr/bin/fish"

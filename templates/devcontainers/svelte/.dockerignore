@@ -1,0 +1,13 @@
+.git
+.github
+.devcontainer
+.svelte-kit
+build
+coverage
+node_modules
+.env
+.env.*
+!.env.example
+Dockerfile*
+compose*.yaml
+README.md
