@@ -1,0 +1,90 @@
+name: Set up workflow tooling
+description: >
+  Prepares the shared host tooling required by Workbench validation and
+  publishing jobs, then verifies that the runner has the expected commands.
+
+inputs:
+  node-version:
+    description: Node.js version used to install and run the Dev Container CLI
+    required: false
+    default: "24"
+  devcontainer-cli-version:
+    description: Pinned version of @devcontainers/cli
+    required: false
+    default: "0.87.0"
+  require-docker:
+    description: Whether Docker must be available for the calling job
+    required: false
+    default: "true"
+  require-shellcheck:
+    description: Whether ShellCheck must be available for the calling job
+    required: false
+    default: "true"
+
+outputs:
+  devcontainer-cli-version:
+    description: Installed Dev Container CLI version
+    value: ${{ steps.verify.outputs.devcontainer-cli-version }}
+
+runs:
+  using: composite
+  steps:
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+
+    - name: Install Dev Container CLI
+      shell: bash
+      env:
+        DEVCONTAINER_CLI_VERSION: ${{ inputs.devcontainer-cli-version }}
+      run: |
+        set -euo pipefail
+        npm install --global "@devcontainers/cli@${DEVCONTAINER_CLI_VERSION}"
+
+    - name: Verify workflow tooling
+      id: verify
+      shell: bash
+      env:
+        REQUIRE_DOCKER: ${{ inputs.require-docker }}
+        REQUIRE_SHELLCHECK: ${{ inputs.require-shellcheck }}
+      run: |
+        set -euo pipefail
+
+        required_commands=(bash git jq node npm devcontainer)
+
+        if [[ "${REQUIRE_DOCKER}" == "true" ]]; then
+          required_commands+=(docker)
+        elif [[ "${REQUIRE_DOCKER}" != "false" ]]; then
+          echo "require-docker must be 'true' or 'false'" >&2
+          exit 1
+        fi
+
+        if [[ "${REQUIRE_SHELLCHECK}" == "true" ]]; then
+          required_commands+=(shellcheck)
+        elif [[ "${REQUIRE_SHELLCHECK}" != "false" ]]; then
+          echo "require-shellcheck must be 'true' or 'false'" >&2
+          exit 1
+        fi
+
+        for command_name in "${required_commands[@]}"; do
+          if ! command -v "${command_name}" >/dev/null 2>&1; then
+            echo "Required command is unavailable: ${command_name}" >&2
+            exit 1
+          fi
+        done
+
+        cli_version="$(devcontainer --version)"
+        echo "devcontainer-cli-version=${cli_version}" >> "${GITHUB_OUTPUT}"
+
+        echo "Node.js: $(node --version)"
+        echo "npm: $(npm --version)"
+        echo "Dev Container CLI: ${cli_version}"
+
+        if [[ "${REQUIRE_DOCKER}" == "true" ]]; then
+          docker version
+        fi
+
+        if [[ "${REQUIRE_SHELLCHECK}" == "true" ]]; then
+          shellcheck --version
+        fi

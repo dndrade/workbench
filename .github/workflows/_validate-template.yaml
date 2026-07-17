@@ -1,0 +1,100 @@
+name: Validate template
+
+on:
+  workflow_call:
+    inputs:
+      ref:
+        description: Git ref to validate
+        required: false
+        type: string
+        default: ""
+      template:
+        description: Template identifier under src/
+        required: false
+        type: string
+        default: svelte
+      test-image:
+        description: Local image tag injected into the rendered template
+        required: false
+        type: string
+        default: workbench-svelte:test
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Template
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.sha }}
+
+      - name: Set up workflow tooling
+        uses: ./.github/actions/setup-tooling
+        with:
+          require-docker: "true"
+          require-shellcheck: "true"
+
+      - name: Validate template shell scripts
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mapfile -t scripts < <(
+            find \
+              scripts/template \
+              .github/actions/smoke-test-template \
+              "test/${{ inputs.template }}" \
+              test/test-utils \
+              -type f -name '*.sh' -print 2>/dev/null
+          )
+
+          if (( ${#scripts[@]} == 0 )); then
+            echo "No template shell scripts were found" >&2
+            exit 1
+          fi
+
+          shellcheck "${scripts[@]}"
+          bash -n "${scripts[@]}"
+
+      - name: Resolve template contract
+        shell: bash
+        env:
+          TEMPLATE_ID: ${{ inputs.template }}
+          DEFAULT_NAMESPACE: ${{ github.repository }}
+        run: ./scripts/template/contract.sh
+
+      - name: Resolve image contract
+        id: image-contract
+        shell: bash
+        env:
+          DOCKERFILE: docker/base/Dockerfile
+        run: ./scripts/image/contract.sh >> "${GITHUB_OUTPUT}"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Build local template image
+        shell: bash
+        env:
+          IMAGE: ${{ inputs.test-image }}
+          DOCKERFILE: docker/base/Dockerfile
+          CONTEXT: .
+          PLATFORM: linux/amd64
+          LOAD: "true"
+          BUILD_CACHE_FROM: type=gha,scope=workbench-template-test
+          BUILD_CACHE_TO: type=gha,mode=max,scope=workbench-template-test
+        run: ./scripts/image/build.sh
+
+      - name: Test template
+        shell: bash
+        env:
+          TEMPLATE_ID: ${{ inputs.template }}
+          IMAGE: ${{ inputs.test-image }}
+          EXPECTED_BUN_VERSION: ${{ steps.image-contract.outputs.bun-version }}
+          EXPECTED_USERNAME: ${{ steps.image-contract.outputs.username }}
+        run: ./scripts/template/test.sh
