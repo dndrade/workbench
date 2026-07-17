@@ -22,11 +22,11 @@ runs:
   steps:
     - name: Build template workspace
       shell: bash
-      run: "${{ github.action_path }}/build.sh" "${{ inputs.template }}"
+      run: '${{ github.action_path }}/build.sh "${{ inputs.template }}"'
 
     - name: Run template smoke test
       shell: bash
-      run: "${{ github.action_path }}/test.sh" "${{ inputs.template }}"
+      run: '${{ github.action_path }}/test.sh "${{ inputs.template }}"'
       env:
         EXPECTED_BUN_VERSION: ${{ inputs.expected-bun-version }}
         EXPECTED_USERNAME: ${{ inputs.expected-username }}
