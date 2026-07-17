@@ -16,8 +16,8 @@ body:
     id: tag
     attributes:
       label: Image tag
-      description: e.g. 1.2.0, 1.2, 1, main, sha-abc123def456
-      placeholder: "1.2.0"
+      description: e.g. 0.2.0, 0.2, 0
+      placeholder: "0.2.0"
     validations:
       required: true
 

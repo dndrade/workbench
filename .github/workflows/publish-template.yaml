@@ -1,126 +1,47 @@
 name: Publish Dev Container Templates
 
 on:
-  push:
-    branches:
-      - main
-    tags:
-      - "v*.*.*"
+  workflow_call:
+    inputs:
+      tag:
+        description: "Release tag created by release-please (e.g. template/svelte-v0.1.1)"
+        required: true
+        type: string
   workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to (re-)publish, e.g. template/svelte-v0.1.1"
+        required: true
+        type: string
 
 permissions:
   contents: read
 
 concurrency:
-  group: workbench-templates-${{ github.ref }}
-  cancel-in-progress: true
+  group: workbench-templates-${{ inputs.tag }}
+  cancel-in-progress: false
 
 jobs:
-  # Detects whether a *branch* push touched paths relevant to this workflow.
-  # Done explicitly with dorny/paths-filter instead of "on.push.paths",
-  # because GitHub's built-in path filter can't diff a tag against a base
-  # commit and silently runs the workflow regardless of paths for tag
-  # pushes. Computing this ourselves makes the behavior explicit.
-  changes:
-    if: github.event_name == 'push' && github.ref_type == 'branch'
+  wait-for-image:
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    outputs:
-      relevant: ${{ steps.filter.outputs.relevant }}
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-
-      - name: Detect relevant path changes
-        id: filter
-        uses: dorny/paths-filter@v3
+      - name: Wait for image publish
+        uses: lewagon/wait-on-check-action@v1.8.1
         with:
-          filters: |
-            relevant:
-              - 'src/**'
-              - '.github/scripts/**'
-              - '.github/workflows/validate-template.yaml'
-              - '.github/workflows/publish-template.yaml'
-
-  # Single explicit gate that decides if this run is allowed to publish.
-  # Rules:
-  #   - Tag pushes must match a strict "vX.Y.Z" release pattern.
-  #   - workflow_dispatch is only allowed from main, so a manual run from a
-  #     feature branch can never publish templates from unreleased content.
-  #   - Branch pushes to main only proceed if they touched relevant paths.
-  #   - Anything else is refused by default (fail closed).
-  guard:
-    needs: [changes]
-    if: always()
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    outputs:
-      proceed: ${{ steps.decide.outputs.proceed }}
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-
-      - name: Decide whether to proceed
-        id: decide
-        shell: bash
-        env:
-          RELEVANT: ${{ needs.changes.outputs.relevant }}
-        run: .github/scripts/guard-publish.sh
+          ref: ${{ github.sha }}
+          check-name: "publish-image"
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          wait-interval: 15
+          timeout-seconds: 1800
 
   validate:
-    needs: [guard]
-    if: needs.guard.outputs.proceed == 'true'
+    needs: [wait-for-image]
+    if: always() && (needs.wait-for-image.result == 'success' || needs.wait-for-image.result == 'skipped')
     uses: ./.github/workflows/validate-template.yaml
 
-  # Only meaningful on real releases (tag pushes) -- catches the exact
-  # mistake this was built for: tagging a release that touches src/** without
-  # remembering to bump the independent `version` field in
-  # devcontainer-template.json. See the README's Versioning section for why
-  # image and template versions are intentionally decoupled rather than
-  # always matching the tag.
-  check-version:
-    needs: [guard]
-    if: needs.guard.outputs.proceed == 'true' && github.ref_type == 'tag'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          fetch-tags: true
-
-      - name: Verify template version was bumped if needed
-        shell: bash
-        run: .github/scripts/check-template-version-bump.sh
-
-  # Only meaningful on real releases (tag pushes). Shared with
-  # publish-image.yaml -- this validates the tag itself against commit
-  # history, which has nothing to do with which artifact is publishing. See
-  # check-commit-conventions.sh.
-  check-commits:
-    needs: [guard]
-    if: needs.guard.outputs.proceed == 'true' && github.ref_type == 'tag'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          fetch-tags: true
-
-      - name: Verify tag bump matches commit history
-        shell: bash
-        run: .github/scripts/check-commit-conventions.sh
-
   publish:
-    needs: [guard, validate, check-version, check-commits]
-    if: needs.guard.outputs.proceed == 'true' && (needs.check-version.result == 'success' || needs.check-version.result == 'skipped') && (needs.check-commits.result == 'success' || needs.check-commits.result == 'skipped')
+    needs: [validate]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -129,14 +50,14 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
 
       - name: Resolve template namespace
         id: namespace
         shell: bash
         run: |
           set -euo pipefail
-          # Derived from the repo instead of hardcoded, so a rename/fork/
-          # transfer can't silently leave this pointing at a stale owner.
           echo "namespace=$(echo "${GITHUB_REPOSITORY}" | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
 
       - name: Publish templates

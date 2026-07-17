@@ -1,0 +1,48 @@
+# Apply these on top of what `tbdflow init --yes` generates in .tbdflow.yml.
+# Confirmed against the tbdflow README schema -- copy these sections in as-is.
+
+main_branch_name: main
+
+monorepo:
+  enabled: true
+  # Self-contained project dirs, excluded from root-level commits/status.
+  # Run `tbdflow init` inside each one too, so commands scope correctly
+  # when run from within them.
+  project_dirs:
+    - "docker/base"
+    - "src/svelte"
+
+ci_check:
+  enabled: true   # sync warns before pulling a red/pending trunk
+
+radar:
+  enabled: true
+  level: file
+  on_sync: true
+  on_commit: warn
+  ignore_patterns:
+    - "*.lock"
+    - "CHANGELOG.md"
+
+lint:
+  conventional_commit_type:
+    enabled: true
+    allowed_types:
+      - feat
+      - fix
+      - chore
+      - docs
+      - ci
+      - build
+      - refactor
+      - perf
+      - test
+      - style
+      - revert
+  scope:
+    enabled: true
+    enforce_lowercase: true
+  subject_line_rules:
+    max_length: 72
+    enforce_lowercase: true
+    no_period: true
