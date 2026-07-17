@@ -1,123 +1,48 @@
 name: Publish Workbench Images
 
 on:
-  push:
-    branches:
-      - main
-    tags:
-      - "v*.*.*"
+  workflow_call:
+    inputs:
+      tag:
+        description: "Release tag created by release-please (e.g. workbench-base-v0.2.0)"
+        required: true
+        type: string
   workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to (re-)publish, e.g. workbench-base-v0.2.0"
+        required: true
+        type: string
 
 permissions:
   contents: read
 
 concurrency:
-  group: workbench-images-${{ github.ref }}
-  cancel-in-progress: true
+  group: workbench-images-${{ inputs.tag }}
+  cancel-in-progress: false
 
 jobs:
-  # Detects whether a *branch* push touched paths relevant to this workflow.
-  # We do this explicitly with dorny/paths-filter instead of the "on.push.paths"
-  # filter, because GitHub's built-in path filter cannot diff a tag against a
-  # base commit and silently runs the workflow regardless of paths for tag
-  # pushes. Computing this ourselves makes the behavior explicit and auditable
-  # rather than relying on that undocumented quirk.
-  changes:
-    if: github.event_name == 'push' && github.ref_type == 'branch'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    outputs:
-      relevant: ${{ steps.filter.outputs.relevant }}
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-
-      - name: Detect relevant path changes
-        id: filter
-        uses: dorny/paths-filter@v3
-        with:
-          filters: |
-            relevant:
-              - 'docker/**'
-              - '.github/scripts/**'
-              - '.github/workflows/validate-image.yaml'
-              - '.github/workflows/publish-image.yaml'
-
-  # Single explicit gate that decides if this run is allowed to publish.
-  # Rules:
-  #   - Tag pushes must match a strict "vX.Y.Z" release pattern. Pre-release
-  #     tags like v1.2.3-rc1 are NOT published as floating major/minor tags.
-  #   - workflow_dispatch is only allowed from the main branch, so a manual
-  #     run from a feature branch can never overwrite the floating `:main`
-  #     image tag.
-  #   - Branch pushes to main only proceed if they touched relevant paths.
-  #   - Anything else is refused by default (fail closed).
-  guard:
-    needs: [changes]
-    if: always()
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    outputs:
-      proceed: ${{ steps.decide.outputs.proceed }}
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-
-      - name: Decide whether to proceed
-        id: decide
-        shell: bash
-        env:
-          RELEVANT: ${{ needs.changes.outputs.relevant }}
-        run: .github/scripts/guard-publish.sh
-
   validate:
-    needs: [guard]
-    if: needs.guard.outputs.proceed == 'true'
     uses: ./.github/workflows/validate-image.yaml
 
-  # Only meaningful on real releases (tag pushes). Shared with
-  # publish-template.yaml -- this validates the tag itself against commit
-  # history, which has nothing to do with which artifact is publishing.
-  # Validates that the tag's bump size (major/minor/patch) matches what
-  # Conventional Commits messages since the last tag actually indicate -- see
-  # check-commit-conventions.sh.
-  check-commits:
-    needs: [guard]
-    if: needs.guard.outputs.proceed == 'true' && github.ref_type == 'tag'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          fetch-tags: true
-
-      - name: Verify tag bump matches commit history
-        shell: bash
-        run: .github/scripts/check-commit-conventions.sh
-
-  publish:
-    needs: [guard, validate, check-commits]
-    if: needs.guard.outputs.proceed == 'true' && (needs.check-commits.result == 'success' || needs.check-commits.result == 'skipped')
+  publish-image:
+    needs: [validate]
     runs-on: ubuntu-latest
     permissions:
       contents: write
       packages: write
-      pull-requests: write
 
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
+        uses: docker/setup-buildx-action@v3
 
       - name: Log in to GHCR
-        uses: docker/login-action@v4
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -126,10 +51,12 @@ jobs:
       - name: Resolve image tags
         id: tags
         shell: bash
+        env:
+          RELEASE_TAG: ${{ inputs.tag }}
         run: .github/scripts/resolve-image-tags.sh
 
       - name: Build and publish base image
-        uses: docker/build-push-action@v7
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: docker/base/Dockerfile
@@ -151,7 +78,7 @@ jobs:
 
       - name: Build and publish Svelte image
         if: steps.svelte.outputs.exists == 'true'
-        uses: docker/build-push-action@v7
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: docker/svelte/Dockerfile
@@ -161,27 +88,3 @@ jobs:
             BASE_IMAGE=${{ steps.tags.outputs.base_reference }}
           cache-from: type=gha,scope=workbench-svelte
           cache-to: type=gha,mode=max,scope=workbench-svelte
-
-      - name: Create GitHub release
-        if: github.ref_type == 'tag'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          if gh release view "${GITHUB_REF_NAME}" >/dev/null 2>&1; then
-            echo "Release ${GITHUB_REF_NAME} already exists."
-          else
-            gh release create "${GITHUB_REF_NAME}" \
-              --verify-tag \
-              --title "${GITHUB_REF_NAME}" \
-              --generate-notes
-          fi
-
-      - name: Open changelog PR
-        if: github.ref_type == 'tag'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        shell: bash
-        run: .github/scripts/open-changelog-pr.sh

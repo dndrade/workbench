@@ -1,0 +1,43 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "bump-minor-pre-major": true,
+  "bump-patch-for-minor-pre-major": false,
+  "changelog-sections": [
+    { "type": "feat", "section": "Added" },
+    { "type": "fix", "section": "Fixed" },
+    { "type": "perf", "section": "Changed" },
+    { "type": "refactor", "section": "Changed" },
+    { "type": "revert", "section": "Removed" },
+    { "type": "docs", "section": "Changed", "hidden": true },
+    { "type": "style", "section": "Changed", "hidden": true },
+    { "type": "test", "section": "Changed", "hidden": true },
+    { "type": "ci", "section": "Changed", "hidden": true },
+    { "type": "build", "section": "Changed", "hidden": true },
+    { "type": "chore", "section": "Changed", "hidden": true }
+  ],
+  "packages": {
+    "docker/base": {
+      "release-type": "simple",
+      "package-name": "workbench-base",
+      "component": "workbench-base",
+      "include-component-in-tag": true,
+      "tag-separator": "-",
+      "changelog-path": "../../CHANGELOG.md"
+    },
+    "src/svelte": {
+      "release-type": "simple",
+      "package-name": "template/svelte",
+      "component": "template/svelte",
+      "include-component-in-tag": true,
+      "tag-separator": "-",
+      "changelog-path": "CHANGELOG.md",
+      "extra-files": [
+        {
+          "type": "json",
+          "path": "devcontainer-template.json",
+          "jsonpath": "$.version"
+        }
+      ]
+    }
+  }
+}

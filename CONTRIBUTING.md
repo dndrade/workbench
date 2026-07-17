@@ -61,7 +61,7 @@ git checkout -b my-new-feature upstream/main
 
 <summary>Template change (<code>src/**</code>, <code>test/**</code>)</summary>
 
-- New template version -> bump `version` in `devcontainer-template.json` manually (tags don't do this)
+- No manual version bump needed -- release-please updates `version` in `devcontainer-template.json` itself when this component releases
 - `validate-template.yaml` must pass
 
 </details>
@@ -72,7 +72,7 @@ git checkout -b my-new-feature upstream/main
 
 Commit small, focused units of work rather than one large commit at the end -- it's easier to review and easier to undo.
 
-Use [Conventional Commits](https://www.conventionalcommits.org/) -- `check-commit-conventions.sh` reads these at tag time to verify the release bump (major/minor/patch) actually matches what changed. A breaking change without a `!` or `BREAKING CHANGE:` footer won't be caught.
+Use [Conventional Commits](https://www.conventionalcommits.org/) -- release-please computes the release version directly from these (`fix:` -> patch, `feat:` -> minor, `feat!:`/`BREAKING CHANGE:` -> major), so a mislabelled commit produces the wrong release, not just an unflagged one.
 
 ```bash
 git commit -m "fix: short summary of the change"

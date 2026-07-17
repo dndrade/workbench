@@ -7,7 +7,7 @@ body:
     attributes:
       label: Template version
       description: The version field from devcontainer-template.json, or the tag you referenced
-      placeholder: "1.0.0"
+      placeholder: "0.1.0"
     validations:
       required: true
 

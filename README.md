@@ -87,14 +87,15 @@ docker compose \
 
 <summary><strong>Releasing (maintainers)</strong></summary>
 
-Publishing a version tag triggers both the image and template publish workflows:
+Releases are driven by [release-please](https://github.com/googleapis/release-please), not a manual git tag. Merging a PR to `main` updates a standing, bot-maintained **Release PR** with the computed version and changelog. Merging *that* PR is what creates the tag and publishes:
 
-```bash
-git tag v0.1.0
-git push origin v0.1.0
+```
+merge PR(s) to main -> release-please updates the Release PR -> you review and merge it -> tag + publish
 ```
 
-Commit messages should follow [Conventional Commits](https://www.conventionalcommits.org/) -- CI checks the tag's bump size (major/minor/patch) against `fix:`/`feat:`/`feat!:` commits since the last tag and fails on a breaking change tagged as anything less than major.
+Image and template release independently, each with their own Release PR and tag prefix (`workbench-base-v...`, `template/svelte-v...`) -- see Versioning below.
+
+Commit messages must follow [Conventional Commits](https://www.conventionalcommits.org/) -- release-please computes the version bump directly from these (`fix:` -> patch, `feat:` -> minor, `feat!:`/`BREAKING CHANGE:` -> major), so a mislabelled commit produces the wrong release, not just an unflagged one.
 
 </details>
 
@@ -102,21 +103,21 @@ Commit messages should follow [Conventional Commits](https://www.conventionalcom
 
 <summary><strong>Versioning</strong></summary>
 
-**Image** (`workbench-base`, `workbench-svelte`) is tied directly to the pushed git tag. Publishing `v1.2.0` creates:
+**Image** (`workbench-base`, `workbench-svelte`) releases as its own component. Merging its Release PR creates a tag like `workbench-base-v0.2.0` and publishes the floating Docker tags:
 
 ```
-1.2.0
-1.2
-1
+0.2.0
+0.2
+0
 ```
 
 Consumer projects should reference:
 
 ```
-ghcr.io/dndrade/workbench-svelte:1
+ghcr.io/dndrade/workbench-svelte:0
 ```
 
-**Template** (`workbench/svelte`) is versioned independently via the `version` field in `src/svelte/devcontainer-template.json`. Pushing a git tag does *not* automatically bump it -- update that field before tagging a release that should also publish a new template version. `publish-template.yaml` enforces this: tagging a release that changed `src/**` without bumping `version` fails CI before anything publishes.
+**Template** (`workbench/svelte`) releases independently, with its own tag (`template/svelte-v0.1.1`) and its own version history. The `version` field in `src/svelte/devcontainer-template.json` is bumped automatically by release-please when the template component releases -- no manual edit needed.
 
 Consumer projects should reference:
 

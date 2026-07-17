@@ -8,7 +8,7 @@ Closes #
 
 ## Checklist
 
-- [ ] Commits follow [Conventional Commits](https://www.conventionalcommits.org/) (`fix:`, `feat:`, `feat!:` for breaking) -- release tags are checked against this
+- [ ] Commits follow [Conventional Commits](https://www.conventionalcommits.org/) (`fix:`, `feat:`, `feat!:` for breaking) -- release-please computes the version bump from these
 - [ ] Touches `docker/**`, `.github/actions/smoke-test/**`, and/or `.github/workflows/{validate,publish}-image.yaml`
 - [ ] New/changed `.sh` scripts are executable (`chmod +x`)
 - [ ] `validate-image.yaml` passes
