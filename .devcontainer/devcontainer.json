@@ -1,6 +1,9 @@
 {
-    "name": "Svelte + Bun Workbench",
-    "image": "ghcr.io/dndrade/workbench-svelte:1",
+    "name": "Workbench (contributor environment)",
+    "build": {
+        "dockerfile": "../docker/base/Dockerfile",
+        "context": ".."
+    },
     "features": {
         "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
     },
@@ -10,6 +13,5 @@
     "remoteEnv": {
         "SSH_AUTH_SOCK": "/ssh-agent"
     },
-    "postCreateCommand": "if [ -f package.json ]; then bun install; fi",
     "shutdownAction": "stopContainer"
 }
