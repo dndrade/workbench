@@ -129,7 +129,7 @@ jobs:
         run: .github/scripts/resolve-image-tags.sh
 
       - name: Build and publish base image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: docker/base/Dockerfile
@@ -151,7 +151,7 @@ jobs:
 
       - name: Build and publish Svelte image
         if: steps.svelte.outputs.exists == 'true'
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: docker/svelte/Dockerfile
