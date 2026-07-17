@@ -24,6 +24,8 @@ trap cleanup EXIT
 
 if [[ -f "${src_dir}/test-project/test.sh" ]]; then
 	echo "Running custom smoke test for '${template_id}'"
+	# shellcheck disable=SC2016 # single-quoted on purpose: these expand
+	# inside the container, not on the host running this script.
 	devcontainer exec --workspace-folder "${src_dir}" --id-label "${id_label}" /bin/sh -c '
 		set -e
 		cd test-project
@@ -37,6 +39,8 @@ else
 	echo "Dockerfile. Tool *presence* is asserted strictly below, but the Bun *version* is"
 	echo "only compared informationally -- a mismatch just means the published image"
 	echo "hasn't caught up with this branch yet, not a regression in this PR."
+	# shellcheck disable=SC2016 # single-quoted on purpose: these expand
+	# inside the container, not on the host running this script.
 	devcontainer exec \
 		--workspace-folder "${src_dir}" \
 		--id-label "${id_label}" \
