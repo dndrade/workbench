@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-template_id="${1:?usage: test.sh <template-id>}"
+: "${TEMPLATE_ID:?TEMPLATE_ID is required}"
 : "${EXPECTED_BUN_VERSION:?EXPECTED_BUN_VERSION is required}"
 : "${EXPECTED_USERNAME:?EXPECTED_USERNAME is required}"
+
+template_id="${TEMPLATE_ID}"
 
 src_dir="/tmp/${template_id}"
 id_label="test-container=${template_id}"

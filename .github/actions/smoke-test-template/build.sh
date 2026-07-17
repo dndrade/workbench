@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-template_id="${1:?usage: build.sh <template-id>}"
+: "${TEMPLATE_ID:?TEMPLATE_ID is required}"
+: "${IMAGE:=}"
+
+template_id="${TEMPLATE_ID}"
 
 shopt -s dotglob
 
