@@ -3,8 +3,10 @@ release_url_template: https://github.com/owner/repository/releases/tag/{{version
 stale_branch_threshold_days: 1
 log_display_count: 15
 monorepo:
-  enabled: false
-  project_dirs: []
+  enabled: true
+  project_dirs:
+    - "docker/base"
+    - "src/svelte"
 issue_handling:
   strategy: branch-name
 review:
@@ -20,23 +22,22 @@ review:
     dismissed: review-dismissed
   concern_blocks_status: false
 radar:
-  enabled: false
+  enabled: true
   level: file
   on_sync: true
-  on_commit: off
+  on_commit: warn
   ignore_patterns:
   - '*.lock'
   - '*-lock.*'
   - CHANGELOG.md
 ci_check:
-  enabled: false
+  enabled: true
 branch_types:
   docs: docs/
   chore: chore/
   refactor: refactor/
   feat: feat/
   feature: feature_
-  release: release_
   fix: fix/
   ci: ci/
 automatic_tags:
