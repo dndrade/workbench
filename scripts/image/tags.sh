@@ -20,7 +20,7 @@ fi
 
 normalized="${VERSION#v}"
 core="${normalized%%[-+]*}"
-IFS='.' read -r major minor patch <<< "${core}"
+IFS='.' read -r major minor _ <<< "${core}"
 
 tags=(
 	"${IMAGE_REPOSITORY}:${normalized}"

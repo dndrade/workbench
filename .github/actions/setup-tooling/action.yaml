@@ -7,7 +7,7 @@ inputs:
   node-version:
     description: Node.js version used to install and run the Dev Container CLI
     required: false
-    default: "20"
+    default: "24"
   devcontainer-cli-version:
     description: Pinned version of @devcontainers/cli
     required: false
