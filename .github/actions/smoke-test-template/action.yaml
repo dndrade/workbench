@@ -1,20 +1,21 @@
 name: Smoke test template
 description: >
-  Copies a devcontainer template into an isolated workspace, substitutes any
-  templateOptions with their defaults, brings it up via the devcontainer CLI,
-  and runs its test/<template>/test.sh if one exists. Falls back to the same
-  baseline tool checks as the image smoke test when no custom test exists
-  yet, so this isn't a no-op while test/<template> is still empty.
+  Copies a Dev Container Template into an isolated workspace, applies default
+  options, starts it with the Dev Container CLI, and runs its matching tests.
 
 inputs:
   template:
-    description: Template id under src/ (e.g. svelte)
+    description: Template identifier under src/
     required: true
+  image:
+    description: Optional image reference used instead of the published image
+    required: false
+    default: ""
   expected-bun-version:
-    description: Expected `bun --version` output, used by the baseline fallback check
+    description: Expected output from bun --version
     required: true
   expected-username:
-    description: Expected primary container user, used by the baseline fallback check
+    description: Expected primary container user
     required: true
 
 runs:
@@ -22,11 +23,15 @@ runs:
   steps:
     - name: Build template workspace
       shell: bash
-      run: '${{ github.action_path }}/build.sh "${{ inputs.template }}"'
+      env:
+        TEMPLATE_ID: ${{ inputs.template }}
+        IMAGE: ${{ inputs.image }}
+      run: '"${{ github.action_path }}/build.sh"'
 
     - name: Run template smoke test
       shell: bash
-      run: '${{ github.action_path }}/test.sh "${{ inputs.template }}"'
       env:
+        TEMPLATE_ID: ${{ inputs.template }}
         EXPECTED_BUN_VERSION: ${{ inputs.expected-bun-version }}
         EXPECTED_USERNAME: ${{ inputs.expected-username }}
+      run: '"${{ github.action_path }}/test.sh"'
