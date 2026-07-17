@@ -4,3 +4,9 @@ docs
 src
 test
 *.md
+
+# Local tooling config, unused by the image build
+release-please-config.json
+.release-please-manifest.json
+.dod.yml
+**/.tbdflow.yml

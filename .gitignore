@@ -5,3 +5,6 @@
 !.env.example
 .vscode/
 .idea/
+
+# tbdflow local WIP/intent log
+.tbdflow-intent.json
