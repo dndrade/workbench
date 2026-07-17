@@ -8,6 +8,7 @@ Closes #
 
 ## Checklist
 
+- [ ] Commits follow [Conventional Commits](https://www.conventionalcommits.org/) (`fix:`, `feat:`, `feat!:` for breaking) -- release tags are checked against this
 - [ ] Touches `src/**`, `test/**`, `.github/actions/smoke-test-template/**`, and/or `.github/workflows/{validate,publish}-template.yaml`
 - [ ] If this should publish a new template version, `version` in `src/svelte/devcontainer-template.json` was bumped -- pushing a git tag does **not** do this automatically
 - [ ] `validate-template.yaml` passes

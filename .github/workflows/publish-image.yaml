@@ -77,9 +77,32 @@ jobs:
     if: needs.guard.outputs.proceed == 'true'
     uses: ./.github/workflows/validate-image.yaml
 
+  # Only meaningful on real releases (tag pushes). Shared with
+  # publish-template.yaml -- this validates the tag itself against commit
+  # history, which has nothing to do with which artifact is publishing.
+  # Validates that the tag's bump size (major/minor/patch) matches what
+  # Conventional Commits messages since the last tag actually indicate -- see
+  # check-commit-conventions.sh.
+  check-commits:
+    needs: [guard]
+    if: needs.guard.outputs.proceed == 'true' && github.ref_type == 'tag'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Verify tag bump matches commit history
+        shell: bash
+        run: .github/scripts/check-commit-conventions.sh
+
   publish:
-    needs: [guard, validate]
-    if: needs.guard.outputs.proceed == 'true'
+    needs: [guard, validate, check-commits]
+    if: needs.guard.outputs.proceed == 'true' && (needs.check-commits.result == 'success' || needs.check-commits.result == 'skipped')
     runs-on: ubuntu-latest
     permissions:
       contents: write

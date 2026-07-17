@@ -74,9 +74,53 @@ jobs:
     if: needs.guard.outputs.proceed == 'true'
     uses: ./.github/workflows/validate-template.yaml
 
+  # Only meaningful on real releases (tag pushes) -- catches the exact
+  # mistake this was built for: tagging a release that touches src/** without
+  # remembering to bump the independent `version` field in
+  # devcontainer-template.json. See the README's Versioning section for why
+  # image and template versions are intentionally decoupled rather than
+  # always matching the tag.
+  check-version:
+    needs: [guard]
+    if: needs.guard.outputs.proceed == 'true' && github.ref_type == 'tag'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Verify template version was bumped if needed
+        shell: bash
+        run: .github/scripts/check-template-version-bump.sh
+
+  # Only meaningful on real releases (tag pushes). Shared with
+  # publish-image.yaml -- this validates the tag itself against commit
+  # history, which has nothing to do with which artifact is publishing. See
+  # check-commit-conventions.sh.
+  check-commits:
+    needs: [guard]
+    if: needs.guard.outputs.proceed == 'true' && github.ref_type == 'tag'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Verify tag bump matches commit history
+        shell: bash
+        run: .github/scripts/check-commit-conventions.sh
+
   publish:
-    needs: [guard, validate]
-    if: needs.guard.outputs.proceed == 'true'
+    needs: [guard, validate, check-version, check-commits]
+    if: needs.guard.outputs.proceed == 'true' && (needs.check-version.result == 'success' || needs.check-version.result == 'skipped') && (needs.check-commits.result == 'success' || needs.check-commits.result == 'skipped')
     runs-on: ubuntu-latest
     permissions:
       contents: write
