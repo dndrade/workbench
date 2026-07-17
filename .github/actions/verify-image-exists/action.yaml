@@ -1,0 +1,89 @@
+name: Verify container image exists
+description: >
+  Checks whether an OCI image reference can be resolved by the current Docker
+  client. The caller must authenticate to a private registry before using this
+  action.
+
+inputs:
+  image:
+    description: Fully qualified OCI image reference, including the required tag
+    required: true
+  required:
+    description: Fail when the image cannot be resolved
+    required: false
+    default: "true"
+  attempts:
+    description: Number of resolution attempts
+    required: false
+    default: "6"
+  delay-seconds:
+    description: Delay between attempts
+    required: false
+    default: "10"
+
+outputs:
+  exists:
+    description: Whether the image reference was successfully resolved
+    value: ${{ steps.verify.outputs.exists }}
+
+runs:
+  using: composite
+  steps:
+    - name: Verify image reference
+      id: verify
+      shell: bash
+      env:
+        IMAGE: ${{ inputs.image }}
+        REQUIRED: ${{ inputs.required }}
+        ATTEMPTS: ${{ inputs.attempts }}
+        DELAY_SECONDS: ${{ inputs.delay-seconds }}
+      run: |
+        set -euo pipefail
+
+        case "${REQUIRED}" in
+          true|false) ;;
+          *)
+            echo "required must be 'true' or 'false'" >&2
+            exit 2
+            ;;
+        esac
+
+        if ! [[ "${ATTEMPTS}" =~ ^[1-9][0-9]*$ ]]; then
+          echo "attempts must be a positive integer" >&2
+          exit 2
+        fi
+
+        if ! [[ "${DELAY_SECONDS}" =~ ^[0-9]+$ ]]; then
+          echo "delay-seconds must be a non-negative integer" >&2
+          exit 2
+        fi
+
+        exists=false
+
+        for ((attempt = 1; attempt <= ATTEMPTS; attempt++)); do
+          echo "Resolving ${IMAGE} (${attempt}/${ATTEMPTS})"
+
+          if docker buildx imagetools inspect "${IMAGE}" >/dev/null 2>&1; then
+            exists=true
+            break
+          fi
+
+          if (( attempt < ATTEMPTS )); then
+            sleep "${DELAY_SECONDS}"
+          fi
+        done
+
+        echo "exists=${exists}" >> "${GITHUB_OUTPUT}"
+
+        if [[ "${exists}" == "true" ]]; then
+          echo "Resolved image: ${IMAGE}"
+          exit 0
+        fi
+
+        if [[ "${REQUIRED}" == "true" ]]; then
+          echo "Unable to resolve required image: ${IMAGE}" >&2
+          echo "Confirm that the tag exists and that the workflow is authenticated to its registry." >&2
+          exit 1
+        fi
+
+        echo "Image does not currently exist: ${IMAGE}"

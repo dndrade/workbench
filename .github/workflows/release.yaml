@@ -1,0 +1,62 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  packages: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release-please:
+    name: Release Please
+    runs-on: ubuntu-latest
+    outputs:
+      image-released: ${{ steps.release.outputs['docker/base--release_created'] }}
+      image-tag: ${{ steps.release.outputs['docker/base--tag_name'] }}
+      template-released: ${{ steps.release.outputs['src/svelte--release_created'] }}
+      template-tag: ${{ steps.release.outputs['src/svelte--tag_name'] }}
+
+    steps:
+      - name: Create or update releases
+        id: release
+        uses: googleapis/release-please-action@v4
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+  publish-image:
+    name: Publish image
+    needs: [release-please]
+    if: needs.release-please.outputs.image-released == 'true'
+    uses: ./.github/workflows/_publish-image.yaml
+    with:
+      tag: ${{ needs.release-please.outputs.image-tag }}
+      image-repository: ghcr.io/dndrade/workbench-svelte
+    secrets: inherit
+
+  publish-template:
+    name: Publish template
+    needs: [release-please, publish-image]
+    if: >-
+      always() &&
+      needs.release-please.outputs.template-released == 'true' &&
+      (
+        needs.publish-image.result == 'success' ||
+        needs.publish-image.result == 'skipped'
+      )
+    uses: ./.github/workflows/_publish-template.yaml
+    with:
+      tag: ${{ needs.release-please.outputs.template-tag }}
+      template: svelte
+      registry: ghcr.io
+      namespace: dndrade/workbench
+    secrets: inherit

@@ -1,5 +1,5 @@
 name: "Feature request"
-description: Suggest an addition or change
+description: Suggest an addition or change to the image, template, automation, or documentation
 labels: ["enhancement"]
 body:
   - type: dropdown
@@ -7,32 +7,49 @@ body:
     attributes:
       label: Area
       options:
-        - Image (workbench-base / workbench-svelte)
-        - Template (workbench/svelte)
-        - CI/CD
+        - Published image
+        - Svelte Dev Container Template
+        - Build and test scripts
+        - CI/CD and releases
         - Documentation
         - Other
     validations:
       required: true
 
   - type: textarea
-    id: description
+    id: problem
     attributes:
-      label: Description
+      label: Problem or limitation
+      description: Describe the current limitation before proposing a solution.
     validations:
       required: true
 
   - type: textarea
-    id: motivation
+    id: proposal
     attributes:
-      label: Motivation / use case
+      label: Proposed change
+      description: Explain the desired behavior and any relevant interface or configuration changes.
     validations:
       required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Describe workarounds or other approaches you considered.
+
+  - type: textarea
+    id: impact
+    attributes:
+      label: Compatibility and release impact
+      description: Note possible breaking changes, migration needs, or image/template dependency changes.
 
   - type: checkboxes
     id: checks
     attributes:
       label: Checks
       options:
-        - label: I searched existing issues for this
+        - label: I searched existing issues for this request
+          required: true
+        - label: This request is scoped to one clear problem or capability
           required: true

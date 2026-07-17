@@ -2,4 +2,4 @@ blank_issues_enabled: false
 contact_links:
   - name: Documentation
     url: https://github.com/dndrade/workbench/blob/main/README.md
-    about: Check the README before filing an issue
+    about: Check the project documentation before filing an issue

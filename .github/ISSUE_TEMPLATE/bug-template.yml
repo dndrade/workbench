@@ -1,13 +1,20 @@
 name: "Bug: Svelte Dev Container Template"
-description: Report a problem with the workbench/svelte devcontainer template
+description: Report a problem applying or using the Workbench Svelte template
 labels: ["bug", "template"]
 body:
-  - type: input
-    id: version
+  - type: markdown
     attributes:
-      label: Template version
-      description: The version field from devcontainer-template.json, or the tag you referenced
-      placeholder: "0.1.0"
+      value: |
+        Use this form for template rendering, application, or generated
+        Dev Container configuration problems. Image-runtime problems belong
+        in the image bug form.
+
+  - type: input
+    id: template-reference
+    attributes:
+      label: Template reference and version
+      description: Include the registry reference or the version from devcontainer-template.json.
+      placeholder: "ghcr.io/dndrade/workbench/svelte:0.1.0"
     validations:
       required: true
 
@@ -16,10 +23,28 @@ body:
     attributes:
       label: How did you apply the template?
       options:
-        - devcontainer CLI (templates apply)
-        - VS Code (Add Dev Container Configuration Files...)
+        - Dev Container CLI (`devcontainer templates apply`)
+        - VS Code (`Add Dev Container Configuration Files...`)
+        - GitHub Codespaces
+        - Other
     validations:
       required: true
+
+  - type: input
+    id: environment
+    attributes:
+      label: Host environment
+      description: Operating system, architecture, editor, and Dev Container CLI or extension version.
+      placeholder: "Windows 11 + WSL2, amd64, VS Code 1.x, Dev Containers extension 0.x"
+    validations:
+      required: true
+
+  - type: textarea
+    id: options
+    attributes:
+      label: Template options
+      description: List any non-default template options or state that all defaults were used.
+      placeholder: "All defaults"
 
   - type: textarea
     id: expected
@@ -40,16 +65,25 @@ body:
     attributes:
       label: Steps to reproduce
       placeholder: |
-        1.
-        2.
-        3.
+        1. Create a clean project
+        2. Apply the template using ...
+        3. Run `devcontainer up`
+        4. Observe ...
     validations:
       required: true
+
+  - type: textarea
+    id: generated-config
+    attributes:
+      label: Generated devcontainer.json
+      description: Include the generated configuration when relevant. Remove sensitive values.
+      render: json
 
   - type: textarea
     id: logs
     attributes:
       label: Relevant logs
+      description: Remove credentials, tokens, and other sensitive values.
       render: shell
 
   - type: checkboxes
@@ -57,5 +91,9 @@ body:
     attributes:
       label: Checks
       options:
-        - label: I searched existing issues for this
+        - label: I searched existing issues for this problem
+          required: true
+        - label: I reproduced this using a clean project or minimal example
+          required: true
+        - label: I removed secrets and personal data from the report
           required: true

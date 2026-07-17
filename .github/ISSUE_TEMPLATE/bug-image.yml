@@ -1,23 +1,28 @@
 name: "Bug: Workbench Image"
-description: Report a problem with the workbench-base or workbench-svelte image
+description: Report a problem with the published Workbench container image
 labels: ["bug", "image"]
 body:
-  - type: dropdown
+  - type: markdown
+    attributes:
+      value: |
+        Use this form for problems with `ghcr.io/dndrade/workbench-svelte`.
+        Template application or generation problems belong in the template bug form.
+
+  - type: input
     id: image
     attributes:
-      label: Which image?
-      options:
-        - workbench-base
-        - workbench-svelte
+      label: Image reference
+      description: Include the registry, repository, and tag.
+      placeholder: "ghcr.io/dndrade/workbench-svelte:0.2.0"
     validations:
       required: true
 
   - type: input
-    id: tag
+    id: platform
     attributes:
-      label: Image tag
-      description: e.g. 0.2.0, 0.2, 0
-      placeholder: "0.2.0"
+      label: Host platform
+      description: Operating system, architecture, and container runtime.
+      placeholder: "Ubuntu 24.04, amd64, Docker 27"
     validations:
       required: true
 
@@ -40,9 +45,9 @@ body:
     attributes:
       label: Steps to reproduce
       placeholder: |
-        1.
-        2.
-        3.
+        1. Pull or build the image
+        2. Run ...
+        3. Observe ...
     validations:
       required: true
 
@@ -50,6 +55,7 @@ body:
     id: logs
     attributes:
       label: Relevant logs
+      description: Remove credentials, tokens, and other sensitive values.
       render: shell
 
   - type: checkboxes
@@ -57,5 +63,9 @@ body:
     attributes:
       label: Checks
       options:
-        - label: I searched existing issues for this
+        - label: I searched existing issues for this problem
+          required: true
+        - label: I reproduced this with a currently supported image tag
+          required: true
+        - label: I removed secrets and personal data from the report
           required: true
