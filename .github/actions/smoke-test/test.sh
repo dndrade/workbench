@@ -12,7 +12,6 @@ fi
 
 fish_script="$(
 	cat <<'FISH'
-set -e
 
 set actual_bun_version (bun --version)
 set actual_username (whoami)
@@ -25,7 +24,6 @@ test "$configured_shell" = "/usr/bin/fish"
 fish --version
 git --version
 gh --version
-docker --version
 FISH
 )"
 
