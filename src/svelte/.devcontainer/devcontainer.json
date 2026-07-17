@@ -1,6 +1,6 @@
 {
     "name": "Svelte + Bun Workbench",
-    "image": "ghcr.io/dndrade/workbench-svelte:1",
+    "image": "ghcr.io/dndrade/workbench-svelte:0",
     "features": {
         "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
     },
