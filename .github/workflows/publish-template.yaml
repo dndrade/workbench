@@ -1,4 +1,4 @@
-name: Publish Dev Container Template
+name: Publish Dev Container Templates
 
 on:
   push:
@@ -9,28 +9,99 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
-  packages: write
+  contents: read
+
+concurrency:
+  group: workbench-templates-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  validate:
-    uses: ./.github/workflows/validate.yaml
-
-  publish:
-    needs: validate
+  # Detects whether a *branch* push touched paths relevant to this workflow.
+  # Done explicitly with dorny/paths-filter instead of "on.push.paths",
+  # because GitHub's built-in path filter can't diff a tag against a base
+  # commit and silently runs the workflow regardless of paths for tag
+  # pushes. Computing this ourselves makes the behavior explicit.
+  changes:
+    if: github.event_name == 'push' && github.ref_type == 'branch'
     runs-on: ubuntu-latest
-
+    permissions:
+      contents: read
+    outputs:
+      relevant: ${{ steps.filter.outputs.relevant }}
     steps:
-      - name: Checkout
+      - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Publish template
+      - name: Detect relevant path changes
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            relevant:
+              - 'src/**'
+              - '.github/scripts/**'
+              - '.github/workflows/validate-template.yaml'
+              - '.github/workflows/publish-template.yaml'
+
+  # Single explicit gate that decides if this run is allowed to publish.
+  # Rules:
+  #   - Tag pushes must match a strict "vX.Y.Z" release pattern.
+  #   - workflow_dispatch is only allowed from main, so a manual run from a
+  #     feature branch can never publish templates from unreleased content.
+  #   - Branch pushes to main only proceed if they touched relevant paths.
+  #   - Anything else is refused by default (fail closed).
+  guard:
+    needs: [changes]
+    if: always()
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      proceed: ${{ steps.decide.outputs.proceed }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Decide whether to proceed
+        id: decide
+        shell: bash
+        env:
+          RELEVANT: ${{ needs.changes.outputs.relevant }}
+        run: .github/scripts/guard-publish.sh
+
+  validate:
+    needs: [guard]
+    if: needs.guard.outputs.proceed == 'true'
+    uses: ./.github/workflows/validate-template.yaml
+
+  publish:
+    needs: [guard, validate]
+    if: needs.guard.outputs.proceed == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Resolve template namespace
+        id: namespace
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Derived from the repo instead of hardcoded, so a rename/fork/
+          # transfer can't silently leave this pointing at a stale owner.
+          echo "namespace=$(echo "${GITHUB_REPOSITORY}" | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
+
+      - name: Publish templates
         uses: devcontainers/action@v1
         with:
           publish-templates: "true"
-          base-path-to-templates: "./templates/devcontainers"
+          base-path-to-templates: "./src"
           generate-docs: "false"
           oci-registry-for-templates: "ghcr.io"
-          templates-namespace: "dndrade/workbench"
+          templates-namespace: ${{ steps.namespace.outputs.namespace }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

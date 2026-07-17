@@ -14,4 +14,4 @@
 	autocrlf = input
 
 [safe]
-	directory = /workspaces/*
+    directory = *

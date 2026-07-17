@@ -7,9 +7,9 @@
 
 
 <!-- Menu -->
-<!-- &ensp;[<kbd> <br> Overview <br> </kbd>](#overview) 
-&ensp;[<kbd> <br> Repository <br> </kbd>](#repository)
-&ensp;[<kbd> <br> Usage <br> </kbd>](#usage)  -->
+<!-- &ensp;[<kbd> <br> Overview <br> </kbd>](#overview) 
+&ensp;[<kbd> <br> Repository <br> </kbd>](#repository)
+&ensp;[<kbd> <br> Usage <br> </kbd>](#usage)  -->
 
 </br>
 
@@ -28,27 +28,34 @@
 <!-- Rest of the README content -->
 
 ## Quick Start
-
+ 
+Create an empty project folder.
+ 
+Apply the Svelte Dev Container Template, bring up the container, and scaffold the app with the CLI:
+ 
 ```bash
-git tag v1.0.0
-git push origin v1.0.0
+devcontainer templates apply \
+    --workspace-folder . \
+    --template-id ghcr.io/dndrade/workbench/svelte
+ 
+devcontainer up --workspace-folder .
+ 
+devcontainer exec --workspace-folder . -- bunx sv create .
 ```
-
-Create a Svelte project.
-
+ 
+<details>
+<summary><strong>Using VS Code instead</strong></summary>
+Open the empty project folder in VS Code and run **Dev Containers: Add Dev Container Configuration Files...**.
+ 
+Run **Dev Containers: Reopen in Container**.
+ 
+In the container's integrated terminal:
+ 
 ```bash
-bunx sv create my-app
+bunx sv create .
 ```
-
-Copy:
-
-```text
-templates/devcontainers/svelte/
-```
-
-into the project root.
-
-Reopen in the Dev Container.
+ 
+</details>
 
 ---
 
@@ -76,9 +83,22 @@ docker compose \
 
 <details>
 
+<summary><strong>Releasing (maintainers)</strong></summary>
+
+Publishing a version tag triggers both the image and template publish workflows:
+
+```bash
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+</details>
+
+<details>
+
 <summary><strong>Versioning</strong></summary>
 
-Publishing `v1.2.0` creates:
+**Image** (`workbench-base`, `workbench-svelte`) is tied directly to the pushed git tag. Publishing `v1.2.0` creates:
 
 ```
 1.2.0
@@ -89,7 +109,15 @@ Publishing `v1.2.0` creates:
 Consumer projects should reference:
 
 ```
-ghcr.io/{username}/workbench-svelte:1
+ghcr.io/dndrade/workbench-svelte:1
+```
+
+**Template** (`workbench/svelte`) is versioned independently via the `version` field in `src/svelte/devcontainer-template.json`. Pushing a git tag does *not* automatically bump it -- update that field before tagging a release that should also publish a new template version.
+
+Consumer projects should reference:
+
+```
+ghcr.io/dndrade/workbench/svelte:1
 ```
 
 </details>

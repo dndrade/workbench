@@ -1,38 +1,97 @@
-name: Publish Workbench Image
+name: Publish Workbench Images
 
 on:
+  push:
+    branches:
+      - main
+    tags:
+      - "v*.*.*"
   workflow_dispatch:
 
-  workflow_run:
-    workflows:
-      - Publish Workbench Image
-    types:
-      - completed
-
 permissions:
-  contents: write
-  packages: write
+  contents: read
 
 concurrency:
-  group: workbench-image-${{ github.ref }}
+  group: workbench-images-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  # Detects whether a *branch* push touched paths relevant to this workflow.
+  # We do this explicitly with dorny/paths-filter instead of the "on.push.paths"
+  # filter, because GitHub's built-in path filter cannot diff a tag against a
+  # base commit and silently runs the workflow regardless of paths for tag
+  # pushes. Computing this ourselves makes the behavior explicit and auditable
+  # rather than relying on that undocumented quirk.
+  changes:
+    if: github.event_name == 'push' && github.ref_type == 'branch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      relevant: ${{ steps.filter.outputs.relevant }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Detect relevant path changes
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            relevant:
+              - 'docker/**'
+              - '.github/scripts/**'
+              - '.github/workflows/validate-image.yaml'
+              - '.github/workflows/publish-image.yaml'
+
+  # Single explicit gate that decides if this run is allowed to publish.
+  # Rules:
+  #   - Tag pushes must match a strict "vX.Y.Z" release pattern. Pre-release
+  #     tags like v1.2.3-rc1 are NOT published as floating major/minor tags.
+  #   - workflow_dispatch is only allowed from the main branch, so a manual
+  #     run from a feature branch can never overwrite the floating `:main`
+  #     image tag.
+  #   - Branch pushes to main only proceed if they touched relevant paths.
+  #   - Anything else is refused by default (fail closed).
+  guard:
+    needs: [changes]
+    if: always()
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      proceed: ${{ steps.decide.outputs.proceed }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Decide whether to proceed
+        id: decide
+        shell: bash
+        env:
+          RELEVANT: ${{ needs.changes.outputs.relevant }}
+        run: .github/scripts/guard-publish.sh
+
   validate:
-    uses: ./.github/workflows/validate.yaml
+    needs: [guard]
+    if: needs.guard.outputs.proceed == 'true'
+    uses: ./.github/workflows/validate-image.yaml
 
   publish:
-    needs: validate
-
-    if: >
-      github.event_name == 'workflow_dispatch' ||
-      github.event.workflow_run.conclusion == 'success'
-
+    needs: [guard, validate]
+    if: needs.guard.outputs.proceed == 'true'
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+      pull-requests: write
 
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Log in to GHCR
         uses: docker/login-action@v3
@@ -44,36 +103,44 @@ jobs:
       - name: Resolve image tags
         id: tags
         shell: bash
+        run: .github/scripts/resolve-image-tags.sh
+
+      - name: Build and publish base image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/base/Dockerfile
+          push: true
+          tags: ${{ steps.tags.outputs.base }}
+          cache-from: type=gha,scope=workbench-base
+          cache-to: type=gha,mode=max,scope=workbench-base
+
+      - name: Check for Svelte image
+        id: svelte
+        shell: bash
         run: |
-          set -euo pipefail
-
-          sha_tag="sha-${GITHUB_SHA::12}"
-
-          if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
-            version="${GITHUB_REF_NAME#v}"
-            major_minor="${version%.*}"
-            major="${version%%.*}"
-            tags="${version},${major_minor},${major},${sha_tag}"
+          if [[ -f docker/svelte/Dockerfile ]]; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
           else
-            tags="main,${sha_tag}"
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+            echo "docker/svelte/Dockerfile does not exist yet; publishing only the base image."
           fi
 
-          echo "value=${tags}" >> "$GITHUB_OUTPUT"
-
-      - name: Build, smoke-test, and publish Dev Container image
-        uses: devcontainers/ci@v0.3
+      - name: Build and publish Svelte image
+        if: steps.svelte.outputs.exists == 'true'
+        uses: docker/build-push-action@v6
         with:
-          imageName: ghcr.io/${{ github.repository_owner }}/workbench-svelte
-          imageTag: ${{ steps.tags.outputs.value }}
-          push: always
-          runCmd: |
-            test "$(bun --version)" = "1.3.14"
-            fish --version
-            git --version
-            test "$(getent passwd vscode | cut -d: -f7)" = "/usr/bin/fish"
+          context: .
+          file: docker/svelte/Dockerfile
+          push: true
+          tags: ${{ steps.tags.outputs.svelte }}
+          build-args: |
+            BASE_IMAGE=${{ steps.tags.outputs.base_reference }}
+          cache-from: type=gha,scope=workbench-svelte
+          cache-to: type=gha,mode=max,scope=workbench-svelte
 
       - name: Create GitHub release
-        if: ${{ github.ref_type == 'tag' }}
+        if: github.ref_type == 'tag'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
@@ -88,3 +155,10 @@ jobs:
               --title "${GITHUB_REF_NAME}" \
               --generate-notes
           fi
+
+      - name: Open changelog PR
+        if: github.ref_type == 'tag'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: .github/scripts/open-changelog-pr.sh

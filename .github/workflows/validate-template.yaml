@@ -1,0 +1,81 @@
+name: Validate Template
+
+on:
+  workflow_call:
+  pull_request:
+    paths:
+      - "src/**"
+      - "test/**"
+      - "docker/base/Dockerfile"
+      - ".github/actions/smoke-test-template/**"
+      - ".github/workflows/validate-template.yaml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Validate shell scripts
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          shellcheck .github/actions/smoke-test-template/*.sh test/svelte/*.sh test/test-utils/*.sh
+          bash -n .github/actions/smoke-test-template/*.sh test/svelte/*.sh test/test-utils/*.sh
+
+      - name: Validate template JSON
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          python3 -m json.tool \
+            src/svelte/devcontainer-template.json \
+            >/dev/null
+
+          python3 -m json.tool \
+            src/svelte/.devcontainer/devcontainer.json \
+            >/dev/null
+
+      - name: Resolve expected image config from Dockerfile
+        id: image_config
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          bun_version="$(grep -oP '(?<=^ARG BUN_VERSION=).+' docker/base/Dockerfile)"
+          username="$(grep -oP '(?<=^ARG USERNAME=).+' docker/base/Dockerfile)"
+
+          if [[ -z "${bun_version}" ]]; then
+            echo "Could not resolve BUN_VERSION from docker/base/Dockerfile" >&2
+            exit 1
+          fi
+
+          if [[ -z "${username}" ]]; then
+            echo "Could not resolve USERNAME from docker/base/Dockerfile" >&2
+            exit 1
+          fi
+
+          echo "bun_version=${bun_version}" >> "$GITHUB_OUTPUT"
+          echo "username=${username}" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install devcontainer CLI
+        shell: bash
+        run: npm install -g @devcontainers/cli@0.87.0
+
+      - name: Smoke test Svelte template
+        uses: ./.github/actions/smoke-test-template
+        with:
+          template: svelte
+          expected-bun-version: ${{ steps.image_config.outputs.bun_version }}
+          expected-username: ${{ steps.image_config.outputs.username }}

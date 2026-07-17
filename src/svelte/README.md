@@ -1,6 +1,6 @@
 # SvelteKit + Bun template
 
-Copy the contents of this directory into the root of a SvelteKit application.
+Dev Container environment for SvelteKit + Bun projects. Apply this template to a new project folder, then scaffold the app from inside the container.
 
 ## Template boundaries
 
@@ -15,6 +15,16 @@ production/
 ```
 
 The Dev Container setup does not depend on the production profile. The Node production profile can therefore be changed or supplemented later without rebuilding the shared Workbench development architecture.
+
+## Getting started
+
+Open the project in VS Code and run **Dev Containers: Reopen in Container**.
+
+Scaffold the app into the current folder:
+
+```bash
+bunx sv create .
+```
 
 ## Required application setup
 
@@ -57,8 +67,6 @@ Recommended `package.json` scripts:
 
 ## Development
 
-Open the project in VS Code and run **Dev Containers: Reopen in Container**.
-
 ```bash
 bun run dev
 ```
@@ -70,13 +78,13 @@ Development is served on port `5173`.
 Run from the application root:
 
 ```bash
-docker compose -f production/node/compose.yaml up --build
+docker compose -f production/node/docker-compose.yml up --build -d
 ```
 
 Open port `3000`.
 
 ```bash
-docker compose -f production/node/compose.yaml down
+docker compose -f production/node/docker-compose.yml down
 ```
 
 The production image is built independently from the Workbench development image.

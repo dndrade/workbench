@@ -1,0 +1,19 @@
+{
+    "name": "Workbench (contributor environment)",
+    "build": {
+        "dockerfile": "../docker/base/Dockerfile",
+        "context": ".."
+    },
+    "features": {
+        "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
+    },
+    "mounts": [
+        "source=${localEnv:SSH_AUTH_SOCK},target=/ssh-agent,type=bind"
+    ],
+    "remoteEnv": {
+        "SSH_AUTH_SOCK": "/ssh-agent"
+    },
+
+    "postCreateCommand": "if [ -f package.json ]; then bun install; fi",
+    "shutdownAction": "stopContainer"
+}

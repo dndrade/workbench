@@ -11,7 +11,7 @@ ENV SHELL=/usr/bin/fish
 
 USER root
 
-COPY docker/scripts/ /tmp/workbench/
+COPY docker/base/scripts/ /tmp/workbench/
 
 RUN chmod 0755 /tmp/workbench/*.sh \
 	&& /tmp/workbench/install-tools.sh \
@@ -19,10 +19,10 @@ RUN chmod 0755 /tmp/workbench/*.sh \
 	&& /tmp/workbench/install-bun.sh "${USERNAME}" "${BUN_VERSION}" \
 	&& rm -rf /tmp/workbench
 
-COPY config/fish/ \
+COPY docker/base/config/fish/ \
 	/home/${USERNAME}/.config/fish/
 
-COPY config/git/gitconfig \
+COPY docker/base/config/git/gitconfig \
 	/home/${USERNAME}/.gitconfig
 
 RUN chown -R "${USERNAME}:${USERNAME}" \

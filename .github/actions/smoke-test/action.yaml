@@ -1,0 +1,27 @@
+name: Smoke test workbench image
+description: >
+  Runs a built workbench image and verifies the tools/config baked into it
+  match what the Dockerfile declares. Shared by the base and flavor image
+  smoke tests so the check logic exists in exactly one place.
+
+inputs:
+  image:
+    description: Image tag to test (e.g. workbench-base:test)
+    required: true
+  expected-bun-version:
+    description: Expected `bun --version` output
+    required: true
+  expected-username:
+    description: Expected primary container user
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Run smoke test
+      shell: bash
+      run: "${{ github.action_path }}/test.sh"
+      env:
+        IMAGE: ${{ inputs.image }}
+        EXPECTED_BUN_VERSION: ${{ inputs.expected-bun-version }}
+        EXPECTED_USERNAME: ${{ inputs.expected-username }}

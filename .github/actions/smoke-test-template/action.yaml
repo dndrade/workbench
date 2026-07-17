@@ -1,0 +1,32 @@
+name: Smoke test template
+description: >
+  Copies a devcontainer template into an isolated workspace, substitutes any
+  templateOptions with their defaults, brings it up via the devcontainer CLI,
+  and runs its test/<template>/test.sh if one exists. Falls back to the same
+  baseline tool checks as the image smoke test when no custom test exists
+  yet, so this isn't a no-op while test/<template> is still empty.
+
+inputs:
+  template:
+    description: Template id under src/ (e.g. svelte)
+    required: true
+  expected-bun-version:
+    description: Expected `bun --version` output, used by the baseline fallback check
+    required: true
+  expected-username:
+    description: Expected primary container user, used by the baseline fallback check
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Build template workspace
+      shell: bash
+      run: "${{ github.action_path }}/build.sh" "${{ inputs.template }}"
+
+    - name: Run template smoke test
+      shell: bash
+      run: "${{ github.action_path }}/test.sh" "${{ inputs.template }}"
+      env:
+        EXPECTED_BUN_VERSION: ${{ inputs.expected-bun-version }}
+        EXPECTED_USERNAME: ${{ inputs.expected-username }}

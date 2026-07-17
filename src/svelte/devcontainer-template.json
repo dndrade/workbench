@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "name": "Workbench Svelte",
   "description": "Reusable Svelte development environment powered by the Workbench image.",
-  "documentationURL": "https://github.com/dndrade/workbench",
+  "documentationURL": "https://github.com/dndrade/workbench/blob/main/src/svelte/README.md",
   "licenseURL": "https://github.com/dndrade/workbench/blob/main/LICENSE",
   "options": {}
 }

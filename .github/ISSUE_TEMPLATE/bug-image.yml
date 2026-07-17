@@ -1,0 +1,61 @@
+name: "Bug: Workbench Image"
+description: Report a problem with the workbench-base or workbench-svelte image
+labels: ["bug", "image"]
+body:
+  - type: dropdown
+    id: image
+    attributes:
+      label: Which image?
+      options:
+        - workbench-base
+        - workbench-svelte
+    validations:
+      required: true
+
+  - type: input
+    id: tag
+    attributes:
+      label: Image tag
+      description: e.g. 1.2.0, 1.2, 1, main, sha-abc123def456
+      placeholder: "1.2.0"
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs
+      render: shell
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I searched existing issues for this
+          required: true

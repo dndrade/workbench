@@ -1,0 +1,61 @@
+name: "Bug: Svelte Dev Container Template"
+description: Report a problem with the workbench/svelte devcontainer template
+labels: ["bug", "template"]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Template version
+      description: The version field from devcontainer-template.json, or the tag you referenced
+      placeholder: "1.0.0"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: method
+    attributes:
+      label: How did you apply the template?
+      options:
+        - devcontainer CLI (templates apply)
+        - VS Code (Add Dev Container Configuration Files...)
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs
+      render: shell
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I searched existing issues for this
+          required: true
