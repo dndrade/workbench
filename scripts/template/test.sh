@@ -35,6 +35,7 @@ devcontainer up \
 
 # 4. Run the assertions inside the container
 devcontainer exec \
+	--id-label "test-container=${TEMPLATE_ID}" \
 	--workspace-folder "${src_dir}" \
 	env EXPECTED_BUN_VERSION="${EXPECTED_BUN_VERSION}" EXPECTED_USERNAME="${EXPECTED_USERNAME}" \
 	bash test-project/test.sh
