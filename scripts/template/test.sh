@@ -5,6 +5,8 @@ set -euo pipefail
 : "${EXPECTED_BUN_VERSION:?EXPECTED_BUN_VERSION is required}"
 : "${EXPECTED_USERNAME:?EXPECTED_USERNAME is required}"
 : "${IMAGE:=}"
+: "${OPTION_OVERRIDES:=}"
+: "${CLAUDE_ENABLED:=false}"
 
 if [[ ! "${TEMPLATE_ID}" =~ ^[a-zA-Z0-9._-]+$ ]]; then
 	echo "TEMPLATE_ID contains unsupported characters: ${TEMPLATE_ID}" >&2
@@ -13,29 +15,23 @@ fi
 
 src_dir="/tmp/${TEMPLATE_ID}"
 
-# 1. Render + resolve options
 TEMPLATE_ID="${TEMPLATE_ID}" OUTPUT_DIR="${src_dir}" scripts/template/render.sh
-TEMPLATE_ID="${TEMPLATE_ID}" TEMPLATE_DIR="${src_dir}" IMAGE="${IMAGE}" scripts/template/instantiate.sh
+TEMPLATE_ID="${TEMPLATE_ID}" TEMPLATE_DIR="${src_dir}" IMAGE="${IMAGE}" OPTION_OVERRIDES="${OPTION_OVERRIDES}" scripts/template/instantiate.sh
 
-# 2. Copy in the assertion script + shared test-utils
 test_dir="test/${TEMPLATE_ID}"
 dest_dir="${src_dir}/test-project"
 mkdir -p "${dest_dir}"
 cp -Rp "${test_dir}/." "${dest_dir}"
 cp -Rp test/test-utils/. "${dest_dir}"
 
-# 3. Boot the container
-if [[ -z "${SSH_AUTH_SOCK:-}" ]]; then
-	unset SSH_AUTH_SOCK
-fi
+echo "Building dev container for '${TEMPLATE_ID}'"
 
 devcontainer up \
 	--id-label "test-container=${TEMPLATE_ID}" \
 	--workspace-folder "${src_dir}"
 
-# 4. Run the assertions inside the container
 devcontainer exec \
 	--id-label "test-container=${TEMPLATE_ID}" \
 	--workspace-folder "${src_dir}" \
-	env EXPECTED_BUN_VERSION="${EXPECTED_BUN_VERSION}" EXPECTED_USERNAME="${EXPECTED_USERNAME}" \
+	env EXPECTED_BUN_VERSION="${EXPECTED_BUN_VERSION}" EXPECTED_USERNAME="${EXPECTED_USERNAME}" CLAUDE_ENABLED="${CLAUDE_ENABLED}" \
 	bash test-project/test.sh

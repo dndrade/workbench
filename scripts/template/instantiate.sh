@@ -4,6 +4,7 @@ set -euo pipefail
 : "${TEMPLATE_ID:?TEMPLATE_ID is required}"
 : "${TEMPLATE_DIR:?TEMPLATE_DIR is required}"
 : "${IMAGE:=}"
+: "${OPTION_OVERRIDES:=}"
 
 if [[ ! -d "${TEMPLATE_DIR}" ]]; then
 	echo "Rendered template directory does not exist: ${TEMPLATE_DIR}" >&2
@@ -18,15 +19,29 @@ if [[ ! -f "${metadata_file}" ]]; then
 	exit 1
 fi
 
+declare -A overrides
+if [[ -n "${OPTION_OVERRIDES}" ]]; then
+	IFS=',' read -ra override_pairs <<< "${OPTION_OVERRIDES}"
+	for pair in "${override_pairs[@]}"; do
+		key="${pair%%=*}"
+		value="${pair#*=}"
+		overrides["${key}"]="${value}"
+	done
+fi
+
 mapfile -t options < <(jq -r '.options // {} | keys[]' "${metadata_file}")
 
 for option in "${options[@]}"; do
-	option_value="$(jq -r --arg option "${option}" '.options[$option].default' "${metadata_file}")"
+	if [[ -v "overrides[${option}]" ]]; then
+		option_value="${overrides[${option}]}"
+	else
+		option_value="$(jq -r --arg option "${option}" '.options[$option].default' "${metadata_file}")"
 
-    if [[ "${option_value}" == "null" ]]; then
-            echo "Template '${TEMPLATE_ID}' is missing a default value for option '${option}'" >&2
-            exit 1
-    fi
+		if [[ "${option_value}" == "null" ]]; then
+			echo "Template '${TEMPLATE_ID}' is missing a default value for option '${option}'" >&2
+			exit 1
+		fi
+	fi
 
 	option_key="\${templateOption:${option}}"
 
