@@ -1,0 +1,7 @@
+{
+  "claude": {
+    "type": "boolean",
+    "default": false,
+    "description": "Include Claude Code CLI in the container"
+  }
+}
