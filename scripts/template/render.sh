@@ -34,6 +34,9 @@ rm -rf "${OUTPUT_DIR}"
 mkdir -p "${OUTPUT_DIR}"
 cp -Rp "${source_dir}/." "${OUTPUT_DIR}/"
 
+# NEW: merge shared template options (e.g. `claude`) into this template's metadata
+TEMPLATE_ID="${TEMPLATE_ID}" OUTPUT_DIR="${OUTPUT_DIR}" scripts/template/merge-options.sh
+
 metadata_file="${OUTPUT_DIR}/devcontainer-template.json"
 devcontainer_file="${OUTPUT_DIR}/.devcontainer/devcontainer.json"
 
