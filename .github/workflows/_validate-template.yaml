@@ -90,6 +90,13 @@ jobs:
           BUILD_CACHE_TO: type=gha,mode=max,scope=workbench-template-test
         run: ./scripts/image/build.sh
 
+      - name: Use Docker default builder for devcontainer
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker buildx use default
+          docker image inspect "${{ inputs.test-image }}" >/dev/null
+
       - name: Test template
         shell: bash
         env:
