@@ -1,0 +1,9 @@
+{
+    "name": "Svelte + Bun Workbench",
+    "image": "ghcr.io/dndrade/workbench-svelte:0",
+    "features": {
+        "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
+    },
+    "postCreateCommand": "if [ -f package.json ]; then bun install; fi && if [ \"${templateOption:claude}\" = \"true\" ]; then bun install -g @anthropic-ai/claude-code; fi",
+    "shutdownAction": "stopContainer"
+}
