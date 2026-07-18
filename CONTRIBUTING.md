@@ -86,6 +86,14 @@ git commit -m "feat!: short summary of the change"   # breaking change
 git push --set-upstream origin my-new-feature
 ```
 
+### Before opening a PR
+
+- Code is clean, readable, and adheres to team coding standards.
+- All relevant automated tests (unit, integration) pass successfully.
+- New features or bug fixes are covered by appropriate new tests.
+- Security implications of this change have been considered.
+- Relevant documentation (code comments, READMEs, etc.) is updated.
+
 ### Open a pull request
 
 GitHub will offer a **Create Pull Request** button on your fork once the branch is pushed. Fill in the title and description -- GitHub will suggest the matching PR template (**Image Change** or **Template Change**) based on what you touched. A maintainer will review from there.
