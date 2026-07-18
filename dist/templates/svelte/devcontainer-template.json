@@ -1,0 +1,15 @@
+{
+  "id": "svelte",
+  "version": "0.1.1",
+  "name": "Workbench Svelte",
+  "description": "Reusable Svelte development environment powered by the Workbench image.",
+  "documentationURL": "https://github.com/dndrade/workbench/blob/main/src/svelte/README.md",
+  "licenseURL": "https://github.com/dndrade/workbench/blob/main/LICENSE",
+  "options": {
+    "claude": {
+      "type": "boolean",
+      "default": false,
+      "description": "Include Claude Code CLI in the container"
+    }
+  }
+}
