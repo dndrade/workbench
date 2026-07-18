@@ -1,0 +1,81 @@
+WORKBENCH CI/CD — FOLLOW-UP TASKS
+
+HIGH PRIORITY
+
+1. Re-enable the full template runtime smoke test
+- Current state: disabled with run-smoke-test: false.
+- Missing coverage:
+  - devcontainer startup
+  - docker-outside-of-docker feature
+  - Bun, Fish, Git, gh, and Docker inside the template
+  - template acceptance tests
+- Root issue:
+  - GitHub runner produced an empty SSH agent bind mount:
+    --mount source=,target=/ssh-agent,type=bind
+
+2. Make image and template publishing dependency-safe
+- Required order:
+  1. publish base image
+  2. verify the major image tag exists
+  3. publish the template
+- Template releases should still work when no new image release is needed.
+
+3. Verify automatic base-image releases
+- The first workbench-base-v0.1.0 tag was created manually.
+- Confirm the next docker/base change causes Release Please to:
+  - bump the base version
+  - create the base release tag
+  - run Publish image automatically
+
+MEDIUM PRIORITY
+
+4. Clarify package naming
+- Release component: workbench-base
+- GHCR image: ghcr.io/dndrade/workbench-svelte
+- Decide whether this is a generic base image or a Svelte-specific image.
+- Align workflow names, package names, docs, and template references.
+
+5. Audit GitHub package records
+- GitHub showed multiple package entries.
+- Identify which package is:
+  - the Docker image
+  - the Dev Container Template
+  - any additional OCI package
+- Rename or document them if needed.
+
+6. Upgrade Node-based GitHub Actions
+- Current warnings mention:
+  - actions/checkout@v4
+  - actions/setup-node@v4
+  - googleapis/release-please-action@v4
+- Upgrade when supported versions are confirmed.
+
+LOWER PRIORITY
+
+7. Add a clearer manual publish workflow
+- Keep _publish-image.yaml reusable.
+- Add a discoverable manual entrypoint for emergency/bootstrap publishing.
+
+8. Add release preflight checks
+- Confirm:
+  - release tag exists
+  - manifest version matches the tag
+  - referenced image tag exists
+  - GHCR authentication works
+  - template metadata version matches the release
+
+9. Add one local CI command
+- Create something like:
+  ./scripts/ci/local.sh
+- It should run:
+  - shellcheck
+  - bash -n
+  - image build
+  - image smoke test
+  - template build
+  - template runtime test
+
+CURRENT INTENTIONAL COMPROMISE
+
+- The repository is deployable and packages are published.
+- The main remaining coverage gap is the disabled end-to-end template runtime test.
