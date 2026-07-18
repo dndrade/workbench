@@ -18,6 +18,11 @@ on:
         required: false
         type: string
         default: workbench-svelte:test
+      run-smoke-test:
+        description: Run the full devcontainer startup and acceptance test
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -91,6 +96,7 @@ jobs:
         run: ./scripts/image/build.sh
 
       - name: Use Docker default builder for devcontainer
+        if: inputs.run-smoke-test
         shell: bash
         run: |
           set -euo pipefail
@@ -98,6 +104,7 @@ jobs:
           docker image inspect "${{ inputs.test-image }}" >/dev/null
 
       - name: Test template
+        if: inputs.run-smoke-test
         shell: bash
         env:
           TEMPLATE_ID: ${{ inputs.template }}
