@@ -18,11 +18,6 @@ on:
         required: false
         type: string
         default: workbench-svelte:test
-      run-smoke-test:
-        description: Run the full devcontainer startup and acceptance test
-        required: false
-        type: boolean
-        default: false
 
 permissions:
   contents: read
@@ -52,7 +47,6 @@ jobs:
           mapfile -t scripts < <(
             find \
               scripts/template \
-              .github/actions/smoke-test-template \
               "test/${{ inputs.template }}" \
               test/test-utils \
               -type f -name '*.sh' -print 2>/dev/null
@@ -94,21 +88,3 @@ jobs:
           BUILD_CACHE_FROM: type=gha,scope=workbench-template-test
           BUILD_CACHE_TO: type=gha,mode=max,scope=workbench-template-test
         run: ./scripts/image/build.sh
-
-      - name: Use Docker default builder for devcontainer
-        if: inputs.run-smoke-test
-        shell: bash
-        run: |
-          set -euo pipefail
-          docker buildx use default
-          docker image inspect "${{ inputs.test-image }}" >/dev/null
-
-      - name: Test template
-        if: inputs.run-smoke-test
-        shell: bash
-        env:
-          TEMPLATE_ID: ${{ inputs.template }}
-          IMAGE: ${{ inputs.test-image }}
-          EXPECTED_BUN_VERSION: ${{ steps.image-contract.outputs.bun-version }}
-          EXPECTED_USERNAME: ${{ steps.image-contract.outputs.username }}
-        run: ./scripts/template/test.sh

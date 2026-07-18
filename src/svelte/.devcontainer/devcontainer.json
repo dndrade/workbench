@@ -10,6 +10,6 @@
     "remoteEnv": {
         "SSH_AUTH_SOCK": "/ssh-agent"
     },
-    "postCreateCommand": "if [ -f package.json ]; then bun install; fi",
+    "postCreateCommand": "if [ -f package.json ]; then bun install; fi && if [ \"${templateOption:claude}\" = \"true\" ]; then bun install -g @anthropic-ai/claude-code; fi",
     "shutdownAction": "stopContainer"
 }
