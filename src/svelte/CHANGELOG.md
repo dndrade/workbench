@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.2](https://github.com/dndrade/workbench/compare/template/svelte-v0.1.1...template/svelte-v0.1.2) (2026-07-18)
+
+
+### Changed
+
+* **template:** split render and instantiate scripts ([#15](https://github.com/dndrade/workbench/issues/15)) ([9f73f01](https://github.com/dndrade/workbench/commit/9f73f01d522dfebd4295cadde440446389055bc1))
+
 ## [0.1.1](https://github.com/dndrade/workbench/compare/template/svelte-v0.1.0...template/svelte-v0.1.1) (2026-07-18)
 
 
