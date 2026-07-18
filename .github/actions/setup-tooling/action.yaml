@@ -12,6 +12,10 @@ inputs:
     description: Pinned version of @devcontainers/cli
     required: false
     default: "0.87.0"
+  task-version:
+    description: Pinned version of go-task/task
+    required: false
+    default: "3.51.1"
   require-docker:
     description: Whether Docker must be available for the calling job
     required: false
@@ -42,6 +46,14 @@ runs:
         set -euo pipefail
         npm install --global "@devcontainers/cli@${DEVCONTAINER_CLI_VERSION}"
 
+    - name: Install Task
+      shell: bash
+      env:
+        TASK_VERSION: ${{ inputs.task-version }}
+      run: |
+        set -euo pipefail
+        curl -sL https://taskfile.dev/install.sh | sh -s -- -d -b /usr/local/bin "v${TASK_VERSION}"
+
     - name: Verify workflow tooling
       id: verify
       shell: bash
@@ -51,7 +63,7 @@ runs:
       run: |
         set -euo pipefail
 
-        required_commands=(bash git jq node npm devcontainer)
+        required_commands=(bash git jq node npm devcontainer task)
 
         if [[ "${REQUIRE_DOCKER}" == "true" ]]; then
           required_commands+=(docker)
@@ -71,20 +83,3 @@ runs:
           if ! command -v "${command_name}" >/dev/null 2>&1; then
             echo "Required command is unavailable: ${command_name}" >&2
             exit 1
-          fi
-        done
-
-        cli_version="$(devcontainer --version)"
-        echo "devcontainer-cli-version=${cli_version}" >> "${GITHUB_OUTPUT}"
-
-        echo "Node.js: $(node --version)"
-        echo "npm: $(npm --version)"
-        echo "Dev Container CLI: ${cli_version}"
-
-        if [[ "${REQUIRE_DOCKER}" == "true" ]]; then
-          docker version
-        fi
-
-        if [[ "${REQUIRE_SHELLCHECK}" == "true" ]]; then
-          shellcheck --version
-        fi
