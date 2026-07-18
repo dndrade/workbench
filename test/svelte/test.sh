@@ -14,5 +14,9 @@ check "bun version matches expected" bash -c "bun --version | grep -qx \"${EXPEC
 check "git" git --version
 check "gh" gh --version
 
+if [[ "${CLAUDE_ENABLED:-false}" == "true" ]]; then
+	check "claude code installed" claude --version
+fi
+
 # Report result
 reportResults
