@@ -54,6 +54,16 @@ runs:
         set -euo pipefail
         curl -sL https://taskfile.dev/install.sh | sh -s -- -d -b /usr/local/bin "v${TASK_VERSION}"
 
+    - name: Install ShellCheck
+      if: inputs.require-shellcheck == 'true'
+      shell: bash
+      run: |
+        set -euo pipefail
+        if ! command -v shellcheck >/dev/null 2>&1; then
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends shellcheck
+        fi
+
     - name: Verify workflow tooling
       id: verify
       shell: bash
