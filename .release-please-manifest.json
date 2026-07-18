@@ -1,4 +1,4 @@
 {
   "docker/base": "0.1.0",
-  "src/svelte": "0.1.1"
+  "src/svelte": "0.1.2"
 }
