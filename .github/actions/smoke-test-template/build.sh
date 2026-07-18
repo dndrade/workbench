@@ -90,8 +90,11 @@ else
 fi
 
 echo "Building dev container for '${template_id}'"
-id_label="test-container=${template_id}"
+
+if [[ -z "${SSH_AUTH_SOCK:-}" ]]; then
+	unset SSH_AUTH_SOCK
+fi
 
 devcontainer up \
-	--id-label "${id_label}" \
+	--id-label "test-container=${template_id}" \
 	--workspace-folder "${src_dir}"
