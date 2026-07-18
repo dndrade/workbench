@@ -3,7 +3,8 @@
     "bun@latest",
     "go-task@latest",
     "jq@latest",
-    "shellcheck@latest"
+    "shellcheck@latest",
+    "act@latest"
   ],
   "shell": {
     "init_hook": [
