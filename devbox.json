@@ -1,0 +1,14 @@
+{
+  "packages": [
+    "bun@latest",
+    "go-task@latest",
+    "jq@latest",
+    "shellcheck@latest",
+    "act@latest"
+  ],
+  "shell": {
+    "init_hook": [
+      "command -v devcontainer >/dev/null 2>&1 || curl -fsSL https://raw.githubusercontent.com/devcontainers/cli/main/scripts/install.sh | sh"
+    ]
+  }
+}

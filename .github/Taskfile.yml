@@ -1,0 +1,25 @@
+version: '3'
+
+vars:
+  RUNNER_IMAGE: catthehacker/ubuntu:act-latest
+
+tasks:
+  validate-template:
+    desc: Run the validate-template job locally via act
+    cmds:
+      - act pull_request -W .github/workflows/ci.yaml -j validate-template -P ubuntu-latest={{.RUNNER_IMAGE}}
+
+  validate-image:
+    desc: Run the validate-image job locally via act
+    cmds:
+      - act pull_request -W .github/workflows/ci.yaml -j validate-image -P ubuntu-latest={{.RUNNER_IMAGE}}
+
+  validate:
+    desc: Run all CI validation jobs locally via act
+    deps: [validate-image, validate-template]
+
+  publish-template:
+    desc: Dry-run the publish-template workflow locally via act (does not push to GHCR)
+    cmds:
+      - 'echo "Reminder: this may attempt a real GHCR push if GITHUB_TOKEN is set. Confirm before running."'
+      - act workflow_dispatch -W .github/workflows/_publish-template.yaml -P ubuntu-latest={{.RUNNER_IMAGE}}

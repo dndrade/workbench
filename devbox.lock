@@ -1,0 +1,346 @@
+{
+  "lockfile_version": "1",
+  "packages": {
+    "act@latest": {
+      "last_modified": "2026-07-08T21:13:06Z",
+      "resolved": "github:NixOS/nixpkgs/389ed85304b281ca7f306cf8a1eb4378651ca44e#act",
+      "source": "devbox-search",
+      "version": "0.2.89",
+      "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/9w5281yikzhxja5gzbdfw7c2ifdji0li-act-0.2.89",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/9w5281yikzhxja5gzbdfw7c2ifdji0li-act-0.2.89"
+        },
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/9fdhrs4305v170dfryjf25342k50syrq-act-0.2.89",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/9fdhrs4305v170dfryjf25342k50syrq-act-0.2.89"
+        },
+        "x86_64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/8jl3zr56bwggpxwc4si162xd68kvcz9l-act-0.2.89",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/8jl3zr56bwggpxwc4si162xd68kvcz9l-act-0.2.89"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/bwzi59ysisawm8ja0j92v2riykxr2gw0-act-0.2.89",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/bwzi59ysisawm8ja0j92v2riykxr2gw0-act-0.2.89"
+        }
+      }
+    },
+    "bun@latest": {
+      "last_modified": "2026-07-15T11:37:32Z",
+      "resolved": "github:NixOS/nixpkgs/35d3407a3816f3b341d8cf1d60abaf2b7b8166ac#bun",
+      "source": "devbox-search",
+      "version": "1.3.13",
+      "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/va71kxwaiwnbcf4c119hwfvs6qhkm67n-bun-1.3.13",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/va71kxwaiwnbcf4c119hwfvs6qhkm67n-bun-1.3.13"
+        },
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/7vz895d4jih9ynq9pl2r3i6md8i1az34-bun-1.3.13",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/7vz895d4jih9ynq9pl2r3i6md8i1az34-bun-1.3.13"
+        },
+        "x86_64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/wn9cggwqflvqryxxb9xinl9iygndm8d9-bun-1.3.13",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/wn9cggwqflvqryxxb9xinl9iygndm8d9-bun-1.3.13"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/9ari7qcwfwkqcnr9kpf9fhbshmyhp98k-bun-1.3.13",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/9ari7qcwfwkqcnr9kpf9fhbshmyhp98k-bun-1.3.13"
+        }
+      }
+    },
+    "github:NixOS/nixpkgs/nixpkgs-unstable": {
+      "last_modified": "2026-07-11T07:21:12Z",
+      "resolved": "github:NixOS/nixpkgs/770b9bbb84018993c8f009d437fff6c2e3077037?lastModified=1783754472&narHash=sha256-jS1cnt9j6OkoDoHlURQEDYtJcUHOSwuYGexSvx9aDd4%3D"
+    },
+    "go-task@latest": {
+      "last_modified": "2026-07-08T21:13:06Z",
+      "resolved": "github:NixOS/nixpkgs/389ed85304b281ca7f306cf8a1eb4378651ca44e#go-task",
+      "source": "devbox-search",
+      "version": "3.48.0",
+      "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/dr65k89jwmingg6xz283bg9k63gzxi3n-go-task-3.48.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/dr65k89jwmingg6xz283bg9k63gzxi3n-go-task-3.48.0"
+        },
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/z6xpnlb78q5aicikrlhkdrfd3yb26a3f-go-task-3.48.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/z6xpnlb78q5aicikrlhkdrfd3yb26a3f-go-task-3.48.0"
+        },
+        "x86_64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/q7mxf9b9kcphb3lxrzn4mqazb9nrvlnz-go-task-3.48.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/q7mxf9b9kcphb3lxrzn4mqazb9nrvlnz-go-task-3.48.0"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/cbdyjhd6s7zq4pjjihhb2nyp1rc2jhvy-go-task-3.48.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/cbdyjhd6s7zq4pjjihhb2nyp1rc2jhvy-go-task-3.48.0"
+        }
+      }
+    },
+    "jq@latest": {
+      "last_modified": "2026-07-17T09:58:13Z",
+      "resolved": "github:NixOS/nixpkgs/a47c123a609287a012dfc44d281de2dd4ed13394#jq",
+      "source": "devbox-search",
+      "version": "1.8.2",
+      "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "name": "bin",
+              "path": "/nix/store/w9rx3k3j6r1aijl9vbhdw0j8h6rzdwww-jq-1.8.2-bin",
+              "default": true
+            },
+            {
+              "name": "man",
+              "path": "/nix/store/pgwzzdyic7mf4dzxxj0dw7j1la50gzb8-jq-1.8.2-man",
+              "default": true
+            },
+            {
+              "name": "dev",
+              "path": "/nix/store/gwq87n1iz8fbhnd9g52aw4b6wb8vfal7-jq-1.8.2-dev"
+            },
+            {
+              "name": "doc",
+              "path": "/nix/store/spgihyfnkcbdzwqk8661xlxgn7vp9lp3-jq-1.8.2-doc"
+            },
+            {
+              "name": "out",
+              "path": "/nix/store/n0h3l9gvwsgxfkcrc4jy4mkf95b81gxy-jq-1.8.2"
+            }
+          ],
+          "store_path": "/nix/store/w9rx3k3j6r1aijl9vbhdw0j8h6rzdwww-jq-1.8.2-bin"
+        },
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "bin",
+              "path": "/nix/store/5whqqvqs3bs1q85wvlh1s62xamjp2ddd-jq-1.8.2-bin",
+              "default": true
+            },
+            {
+              "name": "man",
+              "path": "/nix/store/j74grvap66q6g1nb2z1fai8gba6zn2r8-jq-1.8.2-man",
+              "default": true
+            },
+            {
+              "name": "dev",
+              "path": "/nix/store/5vir0728vnqsgv0w4hbwid0w36pjzix8-jq-1.8.2-dev"
+            },
+            {
+              "name": "doc",
+              "path": "/nix/store/97mmiwl3n44brlf1n52wlqn2ncq9l0q1-jq-1.8.2-doc"
+            },
+            {
+              "name": "out",
+              "path": "/nix/store/sllc59m9drvcawrlmsmw74ai9wkia9f1-jq-1.8.2"
+            }
+          ],
+          "store_path": "/nix/store/5whqqvqs3bs1q85wvlh1s62xamjp2ddd-jq-1.8.2-bin"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "bin",
+              "path": "/nix/store/1bp02949k0xdihbgphpwbzba1741pknk-jq-1.8.2-bin",
+              "default": true
+            },
+            {
+              "name": "man",
+              "path": "/nix/store/zcxx34cdvf8xbv26vw2hbgjmsjwxaj9h-jq-1.8.2-man",
+              "default": true
+            },
+            {
+              "name": "doc",
+              "path": "/nix/store/ic07gi5rsjf4nq2ad3h40cpk92bfxb0f-jq-1.8.2-doc"
+            },
+            {
+              "name": "out",
+              "path": "/nix/store/mgrb1j6chhwmb7jwd6cjwihbni2szz1d-jq-1.8.2"
+            },
+            {
+              "name": "dev",
+              "path": "/nix/store/gfgr11fc6rd0rnbalj2qk69s4jyy5rsb-jq-1.8.2-dev"
+            }
+          ],
+          "store_path": "/nix/store/1bp02949k0xdihbgphpwbzba1741pknk-jq-1.8.2-bin"
+        }
+      }
+    },
+    "shellcheck@latest": {
+      "last_modified": "2026-07-08T21:13:06Z",
+      "resolved": "github:NixOS/nixpkgs/389ed85304b281ca7f306cf8a1eb4378651ca44e#shellcheck",
+      "source": "devbox-search",
+      "version": "0.11.0",
+      "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "name": "bin",
+              "path": "/nix/store/6bnyxfxm379qzy729rccmdpj9ci4b0a4-shellcheck-0.11.0-bin",
+              "default": true
+            },
+            {
+              "name": "man",
+              "path": "/nix/store/3iamy9j7p92vv7v8aqy2vr7c31hbd2sw-shellcheck-0.11.0-man",
+              "default": true
+            },
+            {
+              "name": "doc",
+              "path": "/nix/store/vk8c4kdn7nxk0kq27ys1pbqlf0cifh86-shellcheck-0.11.0-doc",
+              "default": true
+            },
+            {
+              "name": "out",
+              "path": "/nix/store/nf5dcfq8q0cfivxw7qarg3pb3zv3h81q-shellcheck-0.11.0"
+            }
+          ],
+          "store_path": "/nix/store/6bnyxfxm379qzy729rccmdpj9ci4b0a4-shellcheck-0.11.0-bin"
+        },
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "bin",
+              "path": "/nix/store/633if18ssvxv786m23ay2k86p9llh6sf-shellcheck-0.11.0-bin",
+              "default": true
+            },
+            {
+              "name": "man",
+              "path": "/nix/store/3aqgx1qxydl4cisjgl2lizx0ygniisfr-shellcheck-0.11.0-man",
+              "default": true
+            },
+            {
+              "name": "doc",
+              "path": "/nix/store/ak8rvfzsi2qw90ncp6vgbdr6m5flhji3-shellcheck-0.11.0-doc",
+              "default": true
+            },
+            {
+              "name": "out",
+              "path": "/nix/store/h0wd2b38pm38jvin1z3hswv7j2dbq4w9-shellcheck-0.11.0"
+            }
+          ],
+          "store_path": "/nix/store/633if18ssvxv786m23ay2k86p9llh6sf-shellcheck-0.11.0-bin"
+        },
+        "x86_64-darwin": {
+          "outputs": [
+            {
+              "name": "bin",
+              "path": "/nix/store/68yldspq5p1gxa79ghprb1njskk36ax2-shellcheck-0.11.0-bin",
+              "default": true
+            },
+            {
+              "name": "man",
+              "path": "/nix/store/90d8x14kmdq8fa12d5azjwdnp4z55q8b-shellcheck-0.11.0-man",
+              "default": true
+            },
+            {
+              "name": "doc",
+              "path": "/nix/store/4sk9v7wwdh2sia6wi3rknvvvm52wqg6r-shellcheck-0.11.0-doc",
+              "default": true
+            },
+            {
+              "name": "out",
+              "path": "/nix/store/crl9a7fkfbpjbzgwj5nwpj57bmj7z940-shellcheck-0.11.0"
+            }
+          ],
+          "store_path": "/nix/store/68yldspq5p1gxa79ghprb1njskk36ax2-shellcheck-0.11.0-bin"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "bin",
+              "path": "/nix/store/ixvpvkr2s92pbi6si1ki8yk3fs1gvlf2-shellcheck-0.11.0-bin",
+              "default": true
+            },
+            {
+              "name": "man",
+              "path": "/nix/store/8klljnbvqzp6j2f4f8njipxf4h2hyyra-shellcheck-0.11.0-man",
+              "default": true
+            },
+            {
+              "name": "doc",
+              "path": "/nix/store/xd6y28b5cg1jyp9cjnnrwc0s0h55lz6r-shellcheck-0.11.0-doc",
+              "default": true
+            },
+            {
+              "name": "out",
+              "path": "/nix/store/brkafranc7dph4p1brbnx8z70b0yl6l6-shellcheck-0.11.0"
+            }
+          ],
+          "store_path": "/nix/store/ixvpvkr2s92pbi6si1ki8yk3fs1gvlf2-shellcheck-0.11.0-bin"
+        }
+      }
+    }
+  }
+}

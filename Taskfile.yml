@@ -1,0 +1,27 @@
+version: '3'
+
+includes:
+  ci:
+    taskfile: ./.github/Taskfile.yml
+    dir: .
+
+vars:
+  ID: '{{.ID | default "svelte"}}'
+  IMAGE: '{{.IMAGE | default ""}}'
+
+tasks:
+  template:render:
+    desc: Render a template for publishing (options merged, placeholders intact)
+    cmds:
+      - TEMPLATE_ID={{.ID}} OUTPUT_DIR=./dist/templates/{{.ID}} scripts/template/render.sh
+
+  template:test:
+    desc: Render, instantiate, boot, and run assertions against a template
+    cmds:
+      - TEMPLATE_ID={{.ID}} IMAGE={{.IMAGE}} EXPECTED_BUN_VERSION={{.EXPECTED_BUN_VERSION}} EXPECTED_USERNAME={{.EXPECTED_USERNAME}} scripts/template/test.sh
+
+  template:publish:
+    desc: Publish a template's rendered output to the registry
+    deps: [template:render]
+    cmds:
+      - REGISTRY={{.REGISTRY}} NAMESPACE={{.NAMESPACE}} TEMPLATES_PATH=./dist/templates scripts/template/publish.sh

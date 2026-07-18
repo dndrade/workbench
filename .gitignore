@@ -7,4 +7,6 @@
 .idea/
 
 # tbdflow local WIP/intent log
-.tbdflow-intent.json
+.tbdflow-intent.jsondist/
+dist/
+.devbox/
