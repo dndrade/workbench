@@ -4,6 +4,6 @@
     "features": {
         "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
     },
-    "postCreateCommand": "if [ -f package.json ]; then bun install; fi && if [ \"${templateOption:claude}\" = \"true\" ]; then curl -fsSL https://claude.ai/install.sh | bash; fi",
+    "postCreateCommand": "if [ -f package.json ]; then bun install; fi && if [ \"${templateOption:claude}\" = \"true\" ]; then curl -fsSL https://claude.ai/install.sh | bash && printf '%s\\n' 'fish_add_path -g $HOME/.local/bin' >> ~/.config/fish/conf.d/40-claude.fish; fi",
     "shutdownAction": "stopContainer"
 }
