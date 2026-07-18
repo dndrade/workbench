@@ -83,3 +83,21 @@ runs:
           if ! command -v "${command_name}" >/dev/null 2>&1; then
             echo "Required command is unavailable: ${command_name}" >&2
             exit 1
+          fi
+        done
+
+        cli_version="$(devcontainer --version)"
+        echo "devcontainer-cli-version=${cli_version}" >> "${GITHUB_OUTPUT}"
+
+        echo "Node.js: $(node --version)"
+        echo "npm: $(npm --version)"
+        echo "Dev Container CLI: ${cli_version}"
+        echo "Task: $(task --version)"
+
+        if [[ "${REQUIRE_DOCKER}" == "true" ]]; then
+          docker version
+        fi
+
+        if [[ "${REQUIRE_SHELLCHECK}" == "true" ]]; then
+          shellcheck --version
+        fi
